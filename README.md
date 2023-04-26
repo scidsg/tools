@@ -3,7 +3,7 @@
 Scripts and other stuff that can be used alone or added to other scripts.
 
 ## Automatic Updates
-Set up automatic updates so your server doesn't miss important bug fixes and enhancements.
+Set up automatic updates so your server doesn't miss important bug fixes and security patches.
 ```
 curl -sSL https://raw.githubusercontent.com/scidsg/tools/main/auto-updates.sh | bash
 ```
