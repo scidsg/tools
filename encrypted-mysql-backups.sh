@@ -100,3 +100,29 @@ perform_backup
 echo "
 Your backup directory is located at ${BACKUP_DIR}
 "
+<<<<<<< Updated upstream:encrypted-mysql-backups.sh
+=======
+
+# Create a new script with the backup function and necessary variables
+BACKUP_SCRIPT="${BACKUP_DIR}/daily_backup.sh"
+cat > "${BACKUP_SCRIPT}" << EOF
+#!/bin/bash
+DB_NAME="${DB_NAME}"
+DB_USER="${DB_USER}"
+DB_PASS="${DB_PASS}"
+BACKUP_DIR="${BACKUP_DIR}"
+PGP_KEY_ID="${PGP_KEY_ID}"
+PGP_KEY_SERVER="${PGP_KEY_SERVER}"
+
+$(declare -f perform_backup)
+
+echo "Creating backup..."
+perform_backup
+EOF
+
+# Make the new script executable
+chmod +x "${BACKUP_SCRIPT}"
+
+# Schedule the new script to run daily at midnight using cron
+(crontab -l 2>/dev/null; echo "0 0 * * * ${BACKUP_SCRIPT} >> ${BACKUP_DIR}/logfile.log 2>&1") | crontab -
+>>>>>>> Stashed changes:backup-mediawiki.sh
