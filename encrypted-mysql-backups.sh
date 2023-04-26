@@ -43,9 +43,17 @@ apt -y autoremove
 DB_NAME=$(whiptail --inputbox "Enter your database name:" 8 78 "wikidb" --title "Database Name" 3>&1 1>&2 2>&3)
 DB_USER=$(whiptail --inputbox "Enter your database user:" 8 78 "wikiuser" --title "Database User" 3>&1 1>&2 2>&3)
 DB_PASS=$(whiptail --passwordbox "Enter your database password:" 8 78 --title "Database Password" 3>&1 1>&2 2>&3)
+# Collect remote server information
+REMOTE_USER=$(whiptail --inputbox "Enter the remote server's username:" 8 78 "remoteuser" --title "Remote Server Username" 3>&1 1>&2 2>&3)
+REMOTE_HOST=$(whiptail --inputbox "Enter the remote server's hostname or IP address:" 8 78 "" --title "Remote Server Hostname/IP" 3>&1 1>&2 2>&3)
+REMOTE_DIR=$(whiptail --inputbox "Enter the remote directory to store the backups:" 8 78 "/root/backup" --title "Remote Backup Directory" 3>&1 1>&2 2>&3)
+
+# Add the remote server's host key to the known hosts file
+echo "Adding the remote server's host key to the known hosts file..."
+ssh-keyscan -H "${REMOTE_HOST}" >> ~/.ssh/known_hosts
 
 # Collect backup directory
-BACKUP_DIR=$(whiptail --inputbox "Enter the backup directory:" 8 78 "" --title "Backup Directory" 3>&1 1>&2 2>&3)
+BACKUP_DIR=$(whiptail --inputbox "Enter the local backup directory:" 8 78 "" --title "Backup Directory" 3>&1 1>&2 2>&3)
 
 # Create backup directory if it doesn't exist
 mkdir -p "${BACKUP_DIR}"
@@ -63,6 +71,16 @@ gpg --keyserver "${PGP_KEY_SERVER}" --recv-keys "${PGP_KEY_ID}"
 # Import and refresh the public PGP key
 gpg --auto-key-locate keyserver --locate-keys "$PGP_KEY_ID"
 gpg --refresh-keys
+
+# Sync function
+sync_backups() {
+    rsync -avz -e "ssh" --progress "${BACKUP_DIR}/" "${REMOTE_USER}@${REMOTE_HOST}:${REMOTE_DIR}"
+    if [ $? -eq 0 ]; then
+        echo "Backup files synced successfully to the remote server."
+    else
+        echo "Remote sync failed. Error code: $?"
+    fi
+}
 
 # Backup function
 perform_backup() {
@@ -97,6 +115,10 @@ perform_backup() {
 echo "Creating backup..."
 perform_backup
 
+# Sync the backups to the remote server
+echo "Syncing backup files to the remote server..."
+sync_backups
+
 echo "
 Your backup directory is located at ${BACKUP_DIR}
 "
@@ -111,11 +133,18 @@ DB_PASS="${DB_PASS}"
 BACKUP_DIR="${BACKUP_DIR}"
 PGP_KEY_ID="${PGP_KEY_ID}"
 PGP_KEY_SERVER="${PGP_KEY_SERVER}"
+REMOTE_USER="${REMOTE_USER}"
+REMOTE_HOST="${REMOTE_HOST}"
+REMOTE_DIR="${REMOTE_DIR}"
 
 $(declare -f perform_backup)
+$(declare -f sync_backups)
 
 echo "Creating backup..."
 perform_backup
+
+echo "Syncing backup files to the remote server..."
+sync_backups
 EOF
 
 # Make the new script executable
