@@ -1,6 +1,6 @@
 # Tools
 
-Scripts and other stuff that can be used alone or added to other scripts.
+Helpful tools to make developing software a little easier.
 
 ## Automatic Updates
 Set up automatic updates so your server doesn't miss important bug fixes and security patches.
