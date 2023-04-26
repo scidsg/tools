@@ -17,8 +17,7 @@ cat << "EOF"
 
 A free tool made with ✊ by Science & Design - https://scidsg.org
 
-🔒 Easy encrypted database backups
-                                                                                                                  
+🔒 Easy encrypted database backups                                                                                                                  
 EOF
 sleep 5
 
