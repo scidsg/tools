@@ -9,11 +9,11 @@ curl -sSL https://raw.githubusercontent.com/scidsg/tools/main/auto-updates.sh | 
 ```
 
 ## Configure Let's Encrypt certificates
-Nginx
+**Nginx**
 ```
 curl -sSL https://raw.githubusercontent.com/scidsg/tools/main/https-4-nginx.sh | bash
 ```
-Apache
+**Apache**
 ```
 curl -sSL https://raw.githubusercontent.com/scidsg/tools/main/https-4-apache.sh | bash
 ```
