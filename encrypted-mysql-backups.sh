@@ -44,9 +44,12 @@ DB_NAME=$(whiptail --inputbox "Enter your database name:" 8 78 "wikidb" --title 
 DB_USER=$(whiptail --inputbox "Enter your database user:" 8 78 "wikiuser" --title "Database User" 3>&1 1>&2 2>&3)
 DB_PASS=$(whiptail --passwordbox "Enter your database password:" 8 78 --title "Database Password" 3>&1 1>&2 2>&3)
 # Collect remote server information
-REMOTE_USER=$(whiptail --inputbox "Enter the remote server's username:" 8 78 "remoteuser" --title "Remote Server Username" 3>&1 1>&2 2>&3)
+REMOTE_USER=$(whiptail --inputbox "Enter the remote server's username:" 8 78 "root" --title "Remote Server Username" 3>&1 1>&2 2>&3)
 REMOTE_HOST=$(whiptail --inputbox "Enter the remote server's hostname or IP address:" 8 78 "" --title "Remote Server Hostname/IP" 3>&1 1>&2 2>&3)
-REMOTE_DIR=$(whiptail --inputbox "Enter the remote directory to store the backups:" 8 78 "/root/backup" --title "Remote Backup Directory" 3>&1 1>&2 2>&3)
+REMOTE_DIR=$(whiptail --inputbox "Enter the remote directory to store the backups:" 8 78 "/root/.backups" --title "Remote Backup Directory" 3>&1 1>&2 2>&3)
+
+ssh-keygen -t rsa -b 4096
+ssh-copy-id -i ~/.ssh/id_rsa.pub ${REMOTE_USER}@${REMOTE_HOST}
 
 # Add the remote server's host key to the known hosts file
 echo "Adding the remote server's host key to the known hosts file..."
