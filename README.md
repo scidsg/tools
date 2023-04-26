@@ -19,7 +19,7 @@ curl -sSL https://raw.githubusercontent.com/scidsg/tools/main/https-4-apache.sh 
 ```
 
 ## Encrypted MySQL Backups
-Made with The Pretty Wiki in mind, this script created backups encrypted to your PGP key.
+Made with The Pretty Wiki in mind, this script creates backups encrypted to your PGP key.
 ```
 curl -sSL https://raw.githubusercontent.com/scidsg/tools/main/encrypted-mysql-backups.sh | bash
 ```
