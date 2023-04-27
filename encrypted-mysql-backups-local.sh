@@ -51,10 +51,10 @@ mkdir -p "${BACKUP_DIR}"
 
 # Collect PGP key details
 PGP_KEY_ID=$(whiptail --inputbox "Enter the email address for your PGP key:" 8 78 "" --title "PGP Email" 3>&1 1>&2 2>&3)
-PGP_KEY_SERVER=$(whiptail --inputbox "Enter your PGP key server:" 8 78 "https://keys.openpgp.org/" --title "PGP Key Server" 3>&1 1>&2 2>&3)
+PGP_KEY_SERVER=$(whiptail --inputbox "Enter your PGP key server:" 8 78 "hkps://keys.openpgp.org" --title "PGP Key Server" 3>&1 1>&2 2>&3)
 
 # Configure GnuPG to use keys.openpgp.org as the keyserver
-echo "keyserver hkps://keys.openpgp.org" >> ~/.gnupg/gpg.conf
+echo "$PGP_KEY_SERVER" >> ~/.gnupg/gpg.conf
 
 # Import the PGP key
 gpg --keyserver "${PGP_KEY_SERVER}" --recv-keys "${PGP_KEY_ID}"
