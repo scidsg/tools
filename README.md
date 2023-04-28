@@ -39,5 +39,7 @@ curl -sSL https://raw.githubusercontent.com/scidsg/tools/main/onionizer.sh | bas
 ## Two-Factor Authentication Setup
 Easily set up two-factor authentication on your server.
 ```
-wget https://raw.githubusercontent.com/scidsg/tools/main/two-factor-setup.sh && chmod +x two-factor-setup.sh && ./two-factor-setup.sh
+wget https://raw.githubusercontent.com/scidsg/tools/main/two-factor-setup.sh
+chmod +x two-factor-setup.sh
+./two-factor-setup.sh
 ```
