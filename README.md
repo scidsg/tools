@@ -25,7 +25,7 @@ curl -sSL https://raw.githubusercontent.com/scidsg/tools/main/encrypted-mysql-ba
 ```
 
 ## Mount a local USB
-Made for self hosting on a Raspberry Pi.
+Made for self hosting on a Raspberry Pi. Automatically mounts a USB drive when plugged in.
 ```
 curl -sSL https://raw.githubusercontent.com/scidsg/tools/main/mount_usb.sh | bash
 ```
