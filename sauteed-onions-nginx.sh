@@ -20,6 +20,7 @@ Onion address authenticity
 https://sauteed-onions.org
 
 EOF
+sleep 3
 
 # Prompt for domain and onion address
 domain=$(whiptail --inputbox "Enter your domain" 8 78 --title "Domain Input" 3>&1 1>&2 2>&3)
