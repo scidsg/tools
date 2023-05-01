@@ -36,7 +36,7 @@ DEPLOY_TYPE=$(whiptail --title "Deployment Type" --menu "Choose your deployment 
 # Depending on the choice, ask for the appropriate information and set the server block
 case $DEPLOY_TYPE in
 1)
-    app_address=$(whiptail --inputbox "Enter your app's address" 8 78 "localhost" --title "App Address Input" 3>&1 1>&2 2>&3)
+    app_address=$(whiptail --inputbox "Enter your app's address" 8 78 --title "App Address Input" 3>&1 1>&2 2>&3)
     app_port=$(whiptail --inputbox "Enter your app's port" 8 78 --title "App Port Input" 3>&1 1>&2 2>&3)
     server_block="
     server {
@@ -49,7 +49,7 @@ case $DEPLOY_TYPE in
     }"
     ;;
 2)
-    static_files_path=$(whiptail --inputbox "Enter the path to your static files" 8 78 "/var/www/html/glennsorrentino" --title "Static Files Path Input" 3>&1 1>&2 2>&3)
+    static_files_path=$(whiptail --inputbox "Enter the path to your static files" 8 78 "/path/to/your/website" --title "Static Files Path Input" 3>&1 1>&2 2>&3)
     server_block="
     server {
         listen 80;
