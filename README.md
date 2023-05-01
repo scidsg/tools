@@ -36,7 +36,7 @@ Run it on a new install of your favorite OS, get an nginx servre with a Tor onio
 curl -sSL https://raw.githubusercontent.com/scidsg/tools/main/onionizer.sh | bash
 ```
 
-## Sauteed Onions
+## Sauteed Onions for Nginx
 Domain owners can prove ownership of an onion address, and increase their website's resilience to censorship.  
 ```
 curl -sSL https://raw.githubusercontent.com/scidsg/tools/main/sauteed-onions-nginx.sh | bash
