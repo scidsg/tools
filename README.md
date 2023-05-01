@@ -36,6 +36,12 @@ Run it on a new install of your favorite OS, get an nginx servre with a Tor onio
 curl -sSL https://raw.githubusercontent.com/scidsg/tools/main/onionizer.sh | bash
 ```
 
+## Sauteed Onions
+Domain owners can prove ownership of an onion address, and increase their website's resilience to censorship.  
+```
+curl -sSL https://raw.githubusercontent.com/scidsg/tools/main/sauteed-onions.sh | bash
+```
+
 ## Two-Factor Authentication Setup
 Easily set up two-factor authentication on your server.
 ```
