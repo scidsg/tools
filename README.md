@@ -39,7 +39,7 @@ curl -sSL https://raw.githubusercontent.com/scidsg/tools/main/onionizer.sh | bas
 ## Sauteed Onions
 Domain owners can prove ownership of an onion address, and increase their website's resilience to censorship.  
 ```
-curl -sSL https://raw.githubusercontent.com/scidsg/tools/main/sauteed-onions.sh | bash
+curl -sSL https://raw.githubusercontent.com/scidsg/tools/main/sauteed-onions-nginx.sh | bash
 ```
 
 ## Two-Factor Authentication Setup
