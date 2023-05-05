@@ -24,6 +24,12 @@ Made with The Pretty Wiki in mind, this script creates backups encrypted to your
 curl -sSL https://raw.githubusercontent.com/scidsg/tools/main/encrypted-mysql-backups.sh | bash
 ```
 
+## Hush Line E-Ink Display
+Made for self hosting Hush Line on a Raspberry Pi.
+```
+curl -sSL https://raw.githubusercontent.com/scidsg/tools/main/hushline-eink-display.sh | bash
+```
+
 ## Mount a local USB
 Made for self hosting on a Raspberry Pi. Automatically mounts a USB drive when plugged in.
 ```
