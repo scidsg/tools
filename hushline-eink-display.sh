@@ -13,6 +13,8 @@ sudo raspi-config
 git clone https://github.com/waveshare/e-Paper.git
 pip3 install ./e-Paper/RaspberryPi_JetsonNano/python/
 pip3 install qrcode[pil]
+pip3 install requests python-gnupg
+
 
 # Install other Python packages
 pip3 install RPi.GPIO spidev
@@ -33,6 +35,8 @@ import sys
 import time
 import textwrap
 import qrcode
+import requests
+import gnupg
 from waveshare_epd import epd2in7
 from PIL import Image, ImageDraw, ImageFont
 
@@ -47,7 +51,7 @@ def get_service_status():
     else:
         return '⛌ Hush Line is not running'
 
-def display_status(epd, status, onion_address):
+def display_status(epd, status, onion_address, name, email, key_id, expires):
     print(f'Displaying status: {status}, Onion address: {onion_address}')
     image = Image.new('1', (epd.height, epd.width), 255)
     draw = ImageDraw.Draw(image)
@@ -58,17 +62,6 @@ def display_status(epd, status, onion_address):
     x_pos_status = 10
     y_pos_status = 15
     draw.text((x_pos_status, y_pos_status), status, font=font_status, fill=0)
-
-    # Wrap the onion address to fit the display width
-    max_width = epd.height
-    chars_per_line = max_width // font_onion.getsize('A')[0]
-    wrapped_onion = textwrap.wrap(onion_address, width=chars_per_line)
-
-    y_text = 40
-    x_pos_onion = 10
-    for line in wrapped_onion:
-        draw.text((x_pos_onion, y_text), line, font=font_onion, fill=0)
-        y_text += font_onion.getsize(line)[1]
 
     # Generate QR code
     qr = qrcode.QRCode(
@@ -82,7 +75,7 @@ def display_status(epd, status, onion_address):
 
     qr_img = qr.make_image(fill_color="black", back_color="white")
 
-    desired_size = 80  # Set the desired size for both width and height
+    desired_size = 90  # Set the desired size for both width and height
     width_scale_factor = desired_size / qr_img.width
     height_scale_factor = desired_size / qr_img.height
 
@@ -93,10 +86,62 @@ def display_status(epd, status, onion_address):
     y_pos = 80
     image.paste(resized_qr_img, (x_pos, y_pos))
 
+    # Calculate the starting position for the PGP information text
+    x_pos_info = x_pos + resized_qr_img.width + 10
+    y_pos_info = y_pos + 6
+
+    # Display the PGP owner information
+    font_info = ImageFont.truetype('/usr/share/fonts/truetype/dejavu/DejaVuSansMono.ttf', 11)
+    max_width = epd.height - x_pos_info
+    chars_per_line = max_width // font_info.getsize('A')[0]
+
+    pgp_info = f'{name} <{email}>\nKey ID: {key_id[-8:]}\nExp: {time.strftime("%Y-%m-%d", time.gmtime(int(expires)))}'
+    wrapped_pgp_info = []
+
+    for line in pgp_info.split('\n'):
+        wrapped_pgp_info.extend(textwrap.wrap(line, width=chars_per_line))
+
+    line_spacing = 3
+    empty_line_spacing = 0
+    for i, line in enumerate(wrapped_pgp_info):
+        draw.text((x_pos_info, y_pos_info), line, font=font_info, fill=0)
+        if i < len(wrapped_pgp_info) - 1 and wrapped_pgp_info[i + 1] == '':
+            y_pos_info += font_info.getsize(line)[1] + empty_line_spacing
+        else:
+            y_pos_info += font_info.getsize(line)[1] + line_spacing
+
+    # Wrap the onion address to fit the display width
+    max_width = epd.height
+    chars_per_line = max_width // font_onion.getsize('A')[0]
+    wrapped_onion = textwrap.wrap(onion_address, width=chars_per_line)
+
+    y_text = 40
+    x_pos_onion = 10
+    for line in wrapped_onion:
+        draw.text((x_pos_onion, y_text), line, font=font_onion, fill=0)
+        y_text += font_onion.getsize(line)[1]
+
     # Rotate the image by 90 degrees for landscape mode
     image_rotated = image.rotate(90, expand=True)
 
     epd.display(epd.getbuffer(image_rotated))
+
+def get_pgp_owner_info(file_path):
+    with open(file_path, 'r') as f:
+        key_data = f.read()
+
+    gpg = gnupg.GPG()
+    imported_key = gpg.import_keys(key_data)
+    fingerprint = imported_key.fingerprints[0]
+    key = gpg.list_keys(keys=fingerprint)[0]
+
+    uids = key['uids'][0].split()
+    name = ' '.join(uids[:-1])
+    email = uids[-1].strip('<>')
+    key_id = key['keyid']
+    expires = key['expires']
+
+    return name, email, key_id, expires
 
 def main():
     print("Starting main function")
@@ -104,12 +149,15 @@ def main():
     epd.init()
     print("EPD initialized")
 
+    pgp_owner_info_url = "/home/pi/hush-line/public_key.asc"
+
     while True:
         status = get_service_status()
         print(f'Service status: {status}')
         onion_address = get_onion_address()
         print(f'Onion address: {onion_address}')
-        display_status(epd, status, onion_address)
+        name, email, key_id, expires = get_pgp_owner_info(pgp_owner_info_url)
+        display_status(epd, status, onion_address, name, email, key_id, expires)
         time.sleep(60)
 
 if __name__ == '__main__':
