@@ -3,7 +3,11 @@
 # Install required packages for e-ink display
 apt update
 apt-get -y dist-upgrade
-apt-get install -y python3-pip
+apt-get install -y python3-pip whiptail
+
+# Welcome Prompt
+whiptail --title "E-Ink Display Setup" --msgbox "The e-paper hat communicates with the Raspberry Pi using the SPI interface, so you need to enable it.\n\nNavigate to \"Interface Options\" > \"SPI\" and select \"Yes\" to enable the SPI interface." 12 64
+sudo raspi-config
 
 # Install Waveshare e-Paper library
 git clone https://github.com/waveshare/e-Paper.git
@@ -39,17 +43,17 @@ def get_onion_address():
 def get_service_status():
     status = os.popen('systemctl is-active hush-line.service').read().strip()
     if status == 'active':
-        return '\n✔ Hush Line is running'
+        return '✔ Hush Line is running'
     else:
-        return '\n⛌ Hush Line is not running'
+        return '⛌ Hush Line is not running'
 
 def display_status(epd, status, onion_address):
     print(f'Displaying status: {status}, Onion address: {onion_address}')
     image = Image.new('1', (epd.height, epd.width), 255)
     draw = ImageDraw.Draw(image)
 
-    font_status = ImageFont.truetype('/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf', 12)
-    font_onion = ImageFont.truetype('/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf', 12)
+    font_status = ImageFont.truetype('/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf', 14)
+    font_onion = ImageFont.truetype('/usr/share/fonts/truetype/dejavu/DejaVuSansMono.ttf', 12)
 
     x_pos_status = 10
     y_pos_status = 15
@@ -60,7 +64,7 @@ def display_status(epd, status, onion_address):
     chars_per_line = max_width // font_onion.getsize('A')[0]
     wrapped_onion = textwrap.wrap(onion_address, width=chars_per_line)
 
-    y_text = 38
+    y_text = 40
     x_pos_onion = 10
     for line in wrapped_onion:
         draw.text((x_pos_onion, y_text), line, font=font_onion, fill=0)
@@ -70,18 +74,24 @@ def display_status(epd, status, onion_address):
     qr = qrcode.QRCode(
         version=1,
         error_correction=qrcode.constants.ERROR_CORRECT_L,
-        box_size=2,
+        box_size=3,
         border=2,
     )
     qr.add_data(f'http://{onion_address}')
     qr.make(fit=True)
 
     qr_img = qr.make_image(fill_color="black", back_color="white")
-    img_width, img_height = qr_img.size
-    x_pos = 5
-    y_pos = 95
 
-    image.paste(qr_img, (x_pos, y_pos))
+    desired_size = 80  # Set the desired size for both width and height
+    width_scale_factor = desired_size / qr_img.width
+    height_scale_factor = desired_size / qr_img.height
+
+    new_size = (int(qr_img.width * width_scale_factor), int(qr_img.height * height_scale_factor))
+    resized_qr_img = qr_img.resize(new_size, Image.NEAREST)
+
+    x_pos = 5
+    y_pos = 80
+    image.paste(resized_qr_img, (x_pos, y_pos))
 
     # Rotate the image by 90 degrees for landscape mode
     image_rotated = image.rotate(90, expand=True)
@@ -105,7 +115,7 @@ def main():
 if __name__ == '__main__':
     print("Starting display_status script")
     try:
-        main()
+            main()
     except KeyboardInterrupt:
         print('Exiting...')
         sys.exit(0)
