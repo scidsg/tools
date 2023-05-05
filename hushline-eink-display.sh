@@ -14,8 +14,16 @@ pip3 install qrcode[pil]
 pip3 install RPi.GPIO spidev
 apt-get -y autoremove
 
+# Enable SPI interface
+if ! grep -q "dtparam=spi=on" /boot/config.txt; then
+    echo "dtparam=spi=on" | sudo tee -a /boot/config.txt
+    echo "SPI interface enabled."
+else
+    echo "SPI interface is already enabled."
+fi
+
 # Create a new script to display status on the e-ink display
-cat > ~/hush-line/display_status.py << EOL
+cat > /home/pi/hush-line/display_status.py << EOL
 import os
 import sys
 import time
@@ -43,6 +51,7 @@ def display_status(epd, status, onion_address):
     font_status = ImageFont.truetype('/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf', 12)
     font_onion = ImageFont.truetype('/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf', 12)
 
+    x_pos_status = 10
     draw.text((0, 0), status, font=font_status, fill=0)
 
     # Wrap the onion address to fit the display width
