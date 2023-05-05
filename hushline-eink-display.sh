@@ -52,8 +52,8 @@ def display_status(epd, status, onion_address):
     font_onion = ImageFont.truetype('/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf', 12)
 
     x_pos_status = 10
-    draw.text((0, 0), status, font=font_status, fill=0)
-
+    draw.text((x_pos_status, 0), status, font=font_status, fill=0)
+    
     # Wrap the onion address to fit the display width
     max_width = epd.height
     chars_per_line = max_width // font_onion.getsize('A')[0]
