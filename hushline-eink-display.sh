@@ -39,9 +39,9 @@ def get_onion_address():
 def get_service_status():
     status = os.popen('systemctl is-active hush-line.service').read().strip()
     if status == 'active':
-        return '\n ✔ Hush Line is running'
+        return '\n✔ Hush Line is running'
     else:
-        return '\n ⛌ Hush Line is not running'
+        return '\n⛌ Hush Line is not running'
 
 def display_status(epd, status, onion_address):
     print(f'Displaying status: {status}, Onion address: {onion_address}')
@@ -52,7 +52,8 @@ def display_status(epd, status, onion_address):
     font_onion = ImageFont.truetype('/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf', 12)
 
     x_pos_status = 10
-    draw.text((x_pos_status, 0), status, font=font_status, fill=0)
+    x_pos_status = 10
+    draw.text((x_pos_status, y_pos_status), status, font=font_status, fill=0)
     
     # Wrap the onion address to fit the display width
     max_width = epd.height
