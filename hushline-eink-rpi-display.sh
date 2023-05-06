@@ -1,5 +1,22 @@
 #!/bin/bash
 
+# Welcome message and ASCII art
+cat << "EOF"                                                        
+                                                            
+   __             _____      __      _____      __    _ __  
+ /'__`\  _______ /\ '__`\  /'__`\   /\ '__`\  /'__`\ /\`'__\
+/\  __/ /\______\\ \ \L\ \/\ \L\.\_ \ \ \L\ \/\  __/ \ \ \/ 
+\ \____\\/______/ \ \ ,__/\ \__/.\_\ \ \ ,__/\ \____\ \ \_\ 
+ \/____/           \ \ \/  \/__/\/_/  \ \ \/  \/____/  \/_/ 
+                    \ \_\              \ \_\                
+                     \/_/               \/_/                
+A free tool by Science & Design - https://scidsg.org
+
+Make it easy for people around you to discover and use your Hush Line instance.
+
+EOF
+sleep 3
+
 # Install required packages for e-ink display
 apt update
 apt-get -y dist-upgrade
@@ -39,6 +56,25 @@ import requests
 import gnupg
 from waveshare_epd import epd2in7
 from PIL import Image, ImageDraw, ImageFont
+from PIL import ImageOps
+
+def display_splash_screen(epd, image_path, display_time):
+    print(f'Displaying splash screen: {image_path}')
+    image = Image.open(image_path).convert("L")
+
+    target_height = int(epd.width * 0.75)
+    height_ratio = target_height / image.height
+    target_width = int(image.width * height_ratio)
+
+    image = image.resize((target_width, target_height), Image.ANTIALIAS)
+    image_bw = Image.new("1", (epd.height, epd.width), 255)
+    paste_x = (epd.height - target_width) // 2
+    paste_y = (epd.width - target_height) // 2
+    image_bw.paste(image, (paste_x, paste_y))
+
+    epd.display(epd.getbuffer(image_bw))
+    time.sleep(display_time)
+    epd.init()
 
 def get_onion_address():
     with open('/var/lib/tor/hidden_service/hostname', 'r') as f:
@@ -143,22 +179,42 @@ def get_pgp_owner_info(file_path):
 
     return name, email, key_id, expires
 
+def clear_screen(epd):
+    print("Clearing the screen")
+    image = Image.new('1', (epd.height, epd.width), 255)
+    image_rotated = image.rotate(90, expand=True)
+    epd.display(epd.getbuffer(image_rotated))
+    epd.sleep()
+
 def main():
     print("Starting main function")
     epd = epd2in7.EPD()
     epd.init()
     print("EPD initialized")
 
+    # Display splash screen
+    splash_image_path = "/home/pi/hush-line/splash.png"
+    display_splash_screen(epd, splash_image_path, 3)
+
     pgp_owner_info_url = "/home/pi/hush-line/public_key.asc"
 
-    while True:
-        status = get_service_status()
-        print(f'Service status: {status}')
-        onion_address = get_onion_address()
-        print(f'Onion address: {onion_address}')
-        name, email, key_id, expires = get_pgp_owner_info(pgp_owner_info_url)
-        display_status(epd, status, onion_address, name, email, key_id, expires)
-        time.sleep(60)
+    try:
+        while True:
+            status = get_service_status()
+            print(f'Service status: {status}')
+            onion_address = get_onion_address()
+            print(f'Onion address: {onion_address}')
+            name, email, key_id, expires = get_pgp_owner_info(pgp_owner_info_url)
+            display_status(epd, status, onion_address, name, email, key_id, expires)
+            time.sleep(60)
+    except KeyboardInterrupt:
+        clear_screen(epd)
+        print('Exiting...')
+        sys.exit(0)
+    except Exception as e:
+        clear_screen(epd)
+        print(f"Unexpected error: {e}")
+        sys.exit(1)
 
 if __name__ == '__main__':
     print("Starting display_status script")
@@ -169,12 +225,61 @@ if __name__ == '__main__':
         sys.exit(0)
 EOL
 
+# Create a new script to display status on the e-ink display
+cat > /home/pi/hush-line/clear_display.py << EOL
+import sys
+from waveshare_epd import epd2in7
+from PIL import Image
+
+def clear_screen(epd):
+    print("Clearing the screen")
+    image = Image.new('1', (epd.height, epd.width), 255)
+    image_rotated = image.rotate(90, expand=True)
+    epd.display(epd.getbuffer(image_rotated))
+    epd.sleep()
+
+def main():
+    print("Starting clear_display script")
+    epd = epd2in7.EPD()
+    epd.init()
+    clear_screen(epd)
+
+if __name__ == '__main__':
+    try:
+        main()
+    except Exception as e:
+        print(f"Unexpected error: {e}")
+        sys.exit(1)
+EOL
+
+# Clear display before shutdown
+cat > /etc/systemd/system/clear-display.service << EOL
+[Unit]
+Description=Clear e-Paper display before shutdown
+DefaultDependencies=no
+Before=shutdown.target reboot.target halt.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/python3 /home/pi/hush-line/clear_display.py
+TimeoutStartSec=0
+
+[Install]
+WantedBy=halt.target reboot.target shutdown.target
+EOL
+sudo systemctl daemon-reload
+sudo systemctl enable clear-display.service
+
 # Add a line to the .bashrc to run the display_status.py script on boot
 if ! grep -q "sudo python3 /home/pi/hush-line/display_status.py" /home/pi/.bashrc; then
     echo "sudo python3 /home/pi/hush-line/display_status.py &" >> /home/pi/.bashrc
 fi
 
-echo "E-ink display configuration complete. Rebooting your Raspberry Pi..."
+# Download splash screen image
+cd /home/pi/hush-line
+wget https://raw.githubusercontent.com/scidsg/brand-resources/main/logos/splash.png
+
+echo "✅ E-ink display configuration complete. Rebooting your Raspberry Pi..."
 sleep 3
 
 sudo reboot
