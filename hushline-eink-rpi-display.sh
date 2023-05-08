@@ -93,11 +93,21 @@ def display_status(epd, status, onion_address, name, email, key_id, expires):
     draw = ImageDraw.Draw(image)
 
     font_status = ImageFont.truetype('/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf', 14)
-    font_onion = ImageFont.truetype('/usr/share/fonts/truetype/dejavu/DejaVuSansMono.ttf', 12)
 
     x_pos_status = 10
     y_pos_status = 15
     draw.text((x_pos_status, y_pos_status), status, font=font_status, fill=0)
+
+    # Add the new text
+    font_instruction = ImageFont.truetype('/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf', 12)
+    instruction_text = "Scan the QR code and open the link in Tor Browser to send a message:"
+    y_pos_instruction = y_pos_status + font_status.getsize(status)[1] + 10
+    max_width = epd.height - 20
+    chars_per_line = max_width // font_instruction.getsize('A')[0]
+    wrapped_instruction = textwrap.wrap(instruction_text, width=40)
+    for line in wrapped_instruction:
+        draw.text((x_pos_status, y_pos_instruction), line, font=font_instruction, fill=0)
+        y_pos_instruction += font_instruction.getsize(line)[1]
 
     # Generate QR code
     qr = qrcode.QRCode(
@@ -111,20 +121,22 @@ def display_status(epd, status, onion_address, name, email, key_id, expires):
 
     qr_img = qr.make_image(fill_color="black", back_color="white")
 
-    desired_size = 90  # Set the desired size for both width and height
-    width_scale_factor = desired_size / qr_img.width
-    height_scale_factor = desired_size / qr_img.height
+    # Calculate available height for QR code
+    max_qr_height = epd.width - (y_pos_instruction + font_instruction.getsize(wrapped_instruction[-1])[1])
+
+    width_scale_factor = max_qr_height / qr_img.width
+    height_scale_factor = max_qr_height / qr_img.height
 
     new_size = (int(qr_img.width * width_scale_factor), int(qr_img.height * height_scale_factor))
     resized_qr_img = qr_img.resize(new_size, Image.NEAREST)
 
     x_pos = 5
-    y_pos = 80
+    y_pos = y_pos_instruction + font_instruction.getsize(wrapped_instruction[-1])[1] - 5
     image.paste(resized_qr_img, (x_pos, y_pos))
 
     # Calculate the starting position for the PGP information text
-    x_pos_info = x_pos + resized_qr_img.width + 10
-    y_pos_info = y_pos + 6
+    x_pos_info = x_pos + resized_qr_img.width + 5
+    y_pos_info = y_pos + 5
 
     # Display the PGP owner information
     font_info = ImageFont.truetype('/usr/share/fonts/truetype/dejavu/DejaVuSansMono.ttf', 11)
@@ -137,7 +149,7 @@ def display_status(epd, status, onion_address, name, email, key_id, expires):
     for line in pgp_info.split('\n'):
         wrapped_pgp_info.extend(textwrap.wrap(line, width=chars_per_line))
 
-    line_spacing = 3
+    line_spacing = 2
     empty_line_spacing = 0
     for i, line in enumerate(wrapped_pgp_info):
         draw.text((x_pos_info, y_pos_info), line, font=font_info, fill=0)
@@ -145,17 +157,6 @@ def display_status(epd, status, onion_address, name, email, key_id, expires):
             y_pos_info += font_info.getsize(line)[1] + empty_line_spacing
         else:
             y_pos_info += font_info.getsize(line)[1] + line_spacing
-
-    # Wrap the onion address to fit the display width
-    max_width = epd.height
-    chars_per_line = max_width // font_onion.getsize('A')[0]
-    wrapped_onion = textwrap.wrap(onion_address, width=chars_per_line)
-
-    y_text = 40
-    x_pos_onion = 10
-    for line in wrapped_onion:
-        draw.text((x_pos_onion, y_text), line, font=font_onion, fill=0)
-        y_text += font_onion.getsize(line)[1]
 
     # Rotate the image by 90 degrees for landscape mode
     image_rotated = image.rotate(90, expand=True)
