@@ -95,13 +95,13 @@ def display_status(epd, status, onion_address, name, email, key_id, expires):
     font_status = ImageFont.truetype('/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf', 14)
 
     x_pos_status = 10
-    y_pos_status = 15
+    y_pos_status = 14
     draw.text((x_pos_status, y_pos_status), status, font=font_status, fill=0)
 
     # Add the new text
-    font_instruction = ImageFont.truetype('/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf', 12)
-    instruction_text = "Scan the QR code and open the link in Tor Browser to send a message:"
-    y_pos_instruction = y_pos_status + font_status.getsize(status)[1] + 10
+    font_instruction = ImageFont.truetype('/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf', 11)
+    instruction_text = "Scan the QR code and open the link in Tor Browser to send a private message:"
+    y_pos_instruction = y_pos_status + font_status.getsize(status)[1] + 8
     max_width = epd.height - 20
     chars_per_line = max_width // font_instruction.getsize('A')[0]
     wrapped_instruction = textwrap.wrap(instruction_text, width=40)
@@ -140,7 +140,7 @@ def display_status(epd, status, onion_address, name, email, key_id, expires):
 
     # Display the PGP owner information
     font_info = ImageFont.truetype('/usr/share/fonts/truetype/dejavu/DejaVuSansMono.ttf', 11)
-    max_width = epd.height - x_pos_info
+    max_width = epd.height - x_pos_info - 5
     chars_per_line = max_width // font_info.getsize('A')[0]
 
     pgp_info = f'{name} <{email}>\nKey ID: {key_id[-8:]}\nExp: {time.strftime("%Y-%m-%d", time.gmtime(int(expires)))}'
