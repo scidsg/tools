@@ -118,6 +118,19 @@ while True:
     qr_y = 0
     image.paste(qr_img, (qr_x, qr_y))
 
+    # Draw the instruction
+    instruction_text = "Scan the QR code to send a private Hush Line message."
+    wrapped_instruction = textwrap.wrap(instruction_text, width=18)  # Adjust width as needed
+
+    # Create a new image for the instruction
+    instruction_image = Image.new("L", (display.height - qr_img.height, display.width), color=255)
+    instruction_draw = ImageDraw.Draw(instruction_image)
+
+    current_height = 0
+    for line in wrapped_instruction:
+        instruction_draw.text((0, current_height), line, font=font, fill=0)
+        current_height += font.getsize(line)[1]
+
     # Draw the PGP key information
     info_text = f"{user_id}\nKey ID: {key_id}\nExp: {exp_date}"
     text = info_text  # Removed the PGP key address line
@@ -134,12 +147,17 @@ while True:
         text_draw.text((0, current_height), line, font=font, fill=0)
         current_height += font.getsize(line)[1]
 
-    # Add a gap after the QR code
-    gap = 10  # Adjust the gap size as you wish
+    # Paste the instruction image onto our main image
+    instruction_x = qr_img.width + 10  # Start where the QR code ends and add the gap
+    instruction_y = 5  # Top of the screen
+    image.paste(instruction_image, (instruction_x, instruction_y))  # Use instruction_image here
+
+    # Add a gap after the instruction
+    gap = 40  # Adjust the gap size as you wish
 
     # Paste the text image onto our main image
-    text_x = qr_img.width + gap  # Start where the QR code ends and add the gap
-    text_y = 5  # Top of the screen
+    text_x = instruction_x  # Start from same x-coordinate
+    text_y = instruction_y + gap  # Start after the instruction and add the gap
     image.paste(text_image, (text_x, text_y))  # Use text_image here, not rotated_text_image
 
     # Rotate the whole image
@@ -150,7 +168,6 @@ while True:
     display.display()
 
     time.sleep(60)
-
 EOL
 
 # Clear display before shutdown
