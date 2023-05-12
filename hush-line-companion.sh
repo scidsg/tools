@@ -5,7 +5,9 @@ whiptail --title "E-Ink Display Setup" --msgbox "The e-paper hat communicates wi
 sudo raspi-config
 
 # Install the necessary dependencies
-sudo apt-get install python3-pip fonts-dejavu python3-pillow -y
+sudo apt-get update 
+sudo apt-get -y dist-upgrade
+sudo apt-get -y install python3-pip fonts-dejavu python3-pillow
 
 # Install the Adafruit EPD library
 sudo pip3 install adafruit-circuitpython-epd qrcode pgpy requests python-gnupg
@@ -15,11 +17,12 @@ HUSH_LINE_ADDRESS=$(whiptail --inputbox "What's the Hush Line address?" 8 78 --t
 PGP_KEY_ADDRESS=$(whiptail --inputbox "What's the address for your PGP key?" 8 78 --title "PGP key address" 3>&1 1>&2 2>&3)
 
 # Download the key and rename to public_key.asc
-wget $PGP_KEY_ADDRESS -O public_key.asc
+mkdir -p /home/pi/hush-line/
+wget $PGP_KEY_ADDRESS -O /home/pi/hush-line/public_key.asc
 
 # Write the Hush Line address and PGP key address to a config file
-mkdir -p /home/pi/hush-line/
 echo "HUSH_LINE_ADDRESS=$HUSH_LINE_ADDRESS" > /home/pi/hush-line/config.txt
+echo "PGP_KEY_ADDRESS=$PGP_KEY_ADDRESS" >> /home/pi/hush-line/config.txt
 
 # Create a new script to display status on the e-ink display
 # Create the hush-line directory if it does not exist
@@ -138,7 +141,7 @@ while True:
         text_draw.text((0, current_height), line, font=font, fill=0)
         current_height += font.getsize(line)[1]
 
-    instruction_x = qr_img.width + 8
+    instruction_x = qr_img.width + 10
     instruction_y = 5  
     image.paste(instruction_image, (instruction_x, instruction_y)) 
 
@@ -190,7 +193,7 @@ while True:
     status_draw.text((0, top_padding), last_seen_text, font=font_info, fill=0)
 
     # Position status_image correctly
-    status_x = qr_img.width + 10
+    status_x = qr_img.width + 9
     status_y = 102
     image.paste(status_image, (status_x, status_y))
 
@@ -227,7 +230,7 @@ sudo systemctl enable app-status
 cd /home/pi/hush-line
 wget https://raw.githubusercontent.com/scidsg/brand-resources/main/logos/splash-sm.png
 
-apt-get -y autoremove
+sudo apt-get -y autoremove
 
 echo "✅ E-ink display configuration complete. Rebooting your Raspberry Pi..."
 sleep 3
