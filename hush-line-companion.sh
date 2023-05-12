@@ -37,16 +37,6 @@ import pgpy
 import requests
 import gnupg
 
-# Load the PGP key from the file
-with open("/home/pi/hush-line/public_key.asc", "r") as f:
-    key_data = f.read()
-
-# Parse the key
-key, _ = pgpy.PGPKey.from_blob(key_data)
-print(key)
-
-import pgpy
-
 def get_key_info(file_path):
     # Load the PGP key from the file
     with open(file_path, "r") as f:
@@ -56,7 +46,9 @@ def get_key_info(file_path):
     key, _ = pgpy.PGPKey.from_blob(key_data)
 
     # Extract the user ID (name and email) and key ID
-    user_id = str(key.userids[0])
+    user_name = str(key.userids[0].name)
+    user_email = str(key.userids[0].email)
+    user_id = f"{user_name} <{user_email}>"
     key_id = key.fingerprint[-8:]  # Last 8 characters of the fingerprint are the key ID
 
     # Extract the expiration date
@@ -68,18 +60,6 @@ def get_key_info(file_path):
 
 user_id, key_id, exp_date = get_key_info("/home/pi/hush-line/public_key.asc")
 print(f"{user_id}\nKey ID: {key_id}\nExp: {exp_date}")
-
-# Extract the user ID (name and email) and key ID
-user_id = str(key.userids[0])
-key_id = key.fingerprint[-8:]  # Last 8 characters of the fingerprint are the key ID
-
-# Extract the expiration date
-exp_date = "No expiration"
-if key.expires_at is not None:
-    exp_date = key.expires_at.strftime("%Y-%m-%d")
-
-# Combine the information into the text you want to display
-text = f"{user_id}\nKey ID: {key_id}\nExp: {exp_date}"
 
 # Read the Hush Line and PGP key addresses from the config file
 with open("/home/pi/hush-line/config.txt") as f:
@@ -138,9 +118,9 @@ while True:
     qr_y = 0
     image.paste(qr_img, (qr_x, qr_y))
 
-    # Draw the PGP key address
-    info_text = f"User ID: {user_id}\nKey ID: {key_id}\nExp: {exp_date}"
-    text = f"PGP Key: {pgp_key_address}\n{info_text}"
+    # Draw the PGP key information
+    info_text = f"{user_id}\nKey ID: {key_id}\nExp: {exp_date}"
+    text = info_text  # Removed the PGP key address line
 
     # Wrap the text
     wrapped_text = textwrap.wrap(text, width=18)  # Adjust width as needed
@@ -170,6 +150,7 @@ while True:
     display.display()
 
     time.sleep(60)
+
 EOL
 
 # Clear display before shutdown
