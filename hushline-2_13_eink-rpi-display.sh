@@ -105,22 +105,22 @@ def display_status(epd, onion_address, name, email, key_id, expires):
     qr_img = qr.make_image(fill_color="black", back_color="white")
 
     # Resize QR code to full height
-    qr_size = int(epd.height * 0.25)  # adjust the multiplier as needed
+    qr_size = int(epd.height * 0.5)  # adjust the multiplier as needed
     resized_qr_img = qr_img.resize((qr_size, qr_size), Image.NEAREST)
 
-    x_pos_qr = 2
-    y_pos_qr = 1
+    x_pos_qr = 0
+    y_pos_qr = 0
     image.paste(resized_qr_img, (x_pos_qr, y_pos_qr))
 
     # Calculate the starting position for the status, instruction and PGP information text
     x_pos_info = x_pos_qr + resized_qr_img.width + 6
     y_pos_info = y_pos_qr
-    y_pos_instruction = y_pos_info
+    y_pos_instruction = y_pos_info + 5
 
     # Add the new text
-    font_instruction = ImageFont.truetype('/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf', 11)
-    instruction_text = "Scan the QR code and open the link in Tor Browser to send a private Hush Line message:"
-    max_width = int(epd.width * 1.825)
+    font_instruction = ImageFont.truetype('/usr/share/fonts/truetype/dejavu/DejaVuSansMono-Bold.ttf', 10)
+    instruction_text = "Scan the QR code to send a private Hush Line message:"
+    max_width = int(epd.width * .9)
     chars_per_line = max_width // font_instruction.getsize('A')[0]
 
     # make sure chars_per_line is at least 1
@@ -133,7 +133,7 @@ def display_status(epd, onion_address, name, email, key_id, expires):
         y_pos_instruction += font_instruction.getsize(line)[1]
 
     # Display the PGP owner information
-    font_info = ImageFont.truetype('/usr/share/fonts/truetype/dejavu/DejaVuSansMono.ttf', 10)
+    font_info = ImageFont.truetype('/usr/share/fonts/truetype/dejavu/DejaVuSansMono-Bold.ttf', 10)
     y_pos_info = y_pos_instruction + 10
 
     pgp_info = f'{name} <{email}>\nKey ID: {key_id[-8:]}\nExp: {time.strftime("%Y-%m-%d", time.gmtime(int(expires)))}'
