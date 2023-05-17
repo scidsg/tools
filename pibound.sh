@@ -11,7 +11,7 @@ cat << "EOF"
     \|__|       \|__|    \|_______|    \|_______|    \|_______|    \|__| \|__|    \|_______|
                                                                                             
 🤫 A free tool by Science & Design - https://scidsg.org
-Pibound: Automatically set up Pi-hole and Unbound
+Pibound Installer: Automatically set up Pi-hole and Unbound
 
 EOF
 sleep 3
@@ -166,6 +166,6 @@ whiptail --title "Configure Router" --msgbox "Finally, you need to update your r
 echo "
 ✅ Installation complete!
                                                
-Pi-hole Bundle Installer is a product by Science & Design. 
+Pibound Installer is a product by Science & Design. 
 Learn more about us at https://scidsg.org.
 Have feedback? Send us an email at feedback@scidsg.org."
