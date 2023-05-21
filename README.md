@@ -73,3 +73,9 @@ wget https://raw.githubusercontent.com/scidsg/tools/main/two-factor-setup.sh
 chmod +x two-factor-setup.sh
 ./two-factor-setup.sh
 ```
+
+## Wifi Loader
+When you have a list of SSIDs and passwords to load on to a new OS. The Wifi Loader hashes the passwords and adds them to your wifi configuration file so your device's connection isn't dependent on a single network.
+```
+curl -sSL https://raw.githubusercontent.com/scidsg/tools/main/wifi-loader.sh | bash
+```
