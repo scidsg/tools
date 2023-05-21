@@ -76,6 +76,27 @@ chmod +x two-factor-setup.sh
 
 ## Wifi Loader
 When you have a list of SSIDs and passwords to load on to a new OS. The Wifi Loader hashes the passwords and adds them to your wifi configuration file so your device's connection isn't dependent on a single network.
+
+First, download the script and make it executable:
 ```
-curl -sSL https://raw.githubusercontent.com/scidsg/tools/main/wifi-loader.sh | bash
+wget https://raw.githubusercontent.com/scidsg/tools/main/wifi-loader.sh
+chmod +x wifi-loader.sh
 ```
+
+Next, to create a list on the device you're loading networks onto:
+```
+sudo nano input.txt
+```
+
+Make sure your wifi networks follow this format:
+```
+SSID1 password1
+SSID2 password2
+SSID3 password3
+```
+
+Finally, load them on your device:
+```
+./wifi-loader.sh input.txt
+```
+
