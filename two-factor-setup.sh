@@ -43,7 +43,7 @@ google-authenticator
 
 # Enable two-factor authentication
 echo "Enabling two-factor authentication..."
-sudo bash -c 'echo "auth required pam_google_authenticator.so" >> /etc/pam.d/sshd'
+sudo sed -i '/@include common-auth/a auth required pam_google_authenticator.so' /etc/pam.d/sshd
 
 # Restart SSH daemon
 echo "Restarting SSH daemon..."
