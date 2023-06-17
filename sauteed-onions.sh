@@ -143,7 +143,6 @@ http {
 
         access_log /var/log/nginx/access.log privacy;
 }
-
 EOL
 
 sudo ln -sf /etc/nginx/sites-available/$DOMAIN.nginx /etc/nginx/sites-enabled/
@@ -164,28 +163,13 @@ certbot --nginx -d $DOMAIN,$ONION_ADDRESS.$DOMAIN --agree-tos --non-interactive 
 # Set up cron job to renew SSL certificate
 (crontab -l 2>/dev/null; echo "30 2 * * 1 /usr/bin/certbot renew --quiet") | crontab -
 
-# Enable the "security" and "updates" repositories
-sudo sed -i 's/\/\/\s\+"\${distro_id}:\${distro_codename}-security";/"\${distro_id}:\${distro_codename}-security";/g' /etc/apt/apt.conf.d/50unattended-upgrades
-sudo sed -i 's/\/\/\s\+"\${distro_id}:\${distro_codename}-updates";/"\${distro_id}:\${distro_codename}-updates";/g' /etc/apt/apt.conf.d/50unattended-upgrades
-sudo sed -i 's|//\s*Unattended-Upgrade::Remove-Unused-Kernel-Packages "true";|Unattended-Upgrade::Remove-Unused-Kernel-Packages "true";|' /etc/apt/apt.conf.d/50unattended-upgrades
-sudo sed -i 's|//\s*Unattended-Upgrade::Remove-Unused-Dependencies "true";|Unattended-Upgrade::Remove-Unused-Dependencies "true";|' /etc/apt/apt.conf.d/50unattended-upgrades
-
-sudo dpkg-reconfigure --priority=low unattended-upgrades
-
-# Configure unattended-upgrades
-echo 'Unattended-Upgrade::Automatic-Reboot "true";' | sudo tee -a /etc/apt/apt.conf.d/50unattended-upgrades
-echo 'Unattended-Upgrade::Automatic-Reboot-Time "02:00";' | sudo tee -a /etc/apt/apt.conf.d/50unattended-upgrades
-
-sudo systemctl restart unattended-upgrades
-
-echo "Automatic updates have been installed and configured."
-
 echo "
 ✅ Installation complete!
                                                
-Hush Line is a product by Science & Design. 
-Learn more about us at https://scidsg.org.
-Have feedback? Send us an email at hushline@scidsg.org."
+https://$DOMAIN
+https://$ONION_ADDRESS.$DOMAIN
+http://$ONION_ADDRESS
+"
 
 # Disable the trap before exiting
 trap - ERR
