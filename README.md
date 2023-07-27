@@ -33,7 +33,7 @@ curl -sSL https://raw.githubusercontent.com/scidsg/tools/main/mount_usb.sh | bas
 ## New Site
 Easily launch your site to public and onion domains, and a new censorship resistant onion-bound domain. Automatically sets up renewing HTTPS certificates. Complete with instructions for DNS config.
 ```
-curl -sSL https://raw.githubusercontent.com/scidsg/tools/main/auto-updates.sh | bash
+curl -sSL https://raw.githubusercontent.com/scidsg/tools/main/new-site.sh | bash
 ```
 
 ## Onionizer
