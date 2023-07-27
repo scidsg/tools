@@ -30,6 +30,12 @@ Made for self hosting on a Raspberry Pi. Automatically mounts a USB drive when p
 curl -sSL https://raw.githubusercontent.com/scidsg/tools/main/mount_usb.sh | bash
 ```
 
+## New Site
+Easily launch your site to public and onion domains, and a new censorship resistant onion-bound domain. Automatically sets up renewing HTTPS certificates. Complete with instructions for DNS config.
+```
+curl -sSL https://raw.githubusercontent.com/scidsg/tools/main/auto-updates.sh | bash
+```
+
 ## Onionizer
 Run it on a new install of your favorite OS, get an nginx servre with a Tor onion service. 
 ```
