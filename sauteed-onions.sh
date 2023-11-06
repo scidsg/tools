@@ -15,11 +15,9 @@ error_exit() {
 # Trap any errors and call the error_exit function
 trap error_exit ERR
 
-# Prompt user for domain name
 DOMAIN=$(whiptail --inputbox "Enter your domain name:" 8 60 3>&1 1>&2 2>&3)
-
-# Email notification setup
 EMAIL=$(whiptail --inputbox "Enter your email:" 8 60 3>&1 1>&2 2>&3)
+GIT=$(whiptail --inputbox "Enter your git repo:" 8 60 3>&1 1>&2 2>&3)
 
 # Check for valid domain name format
 until [[ $DOMAIN =~ ^[a-zA-Z0-9][a-zA-Z0-9\.-]*\.[a-zA-Z]{2,}$ ]]; do
@@ -27,6 +25,7 @@ until [[ $DOMAIN =~ ^[a-zA-Z0-9][a-zA-Z0-9\.-]*\.[a-zA-Z]{2,}$ ]]; do
 done
 export DOMAIN
 export EMAIL
+export GIT
 
 # Debug: Print the value of the DOMAIN variable
 echo "Domain: $DOMAIN"
@@ -153,6 +152,11 @@ if [ -e "/etc/nginx/sites-enabled/default" ]; then
 fi
 ln -sf /etc/nginx/sites-available/$DOMAIN.nginx /etc/nginx/sites-enabled/
 nginx -t && systemctl restart nginx || error_exit
+
+cd /var/www/html
+git clone $GIT
+REPO_NAME=$(basename $GIT .git)
+mv $REPO_NAME $DOMAIN
 
 SERVER_IP=$(curl -s ifconfig.me)
 WIDTH=$(tput cols)
