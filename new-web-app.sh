@@ -182,7 +182,7 @@ echo "
 ✅ Installation complete!
                                                
 https://$DOMAIN
-https://$ONION_ADDRESS.$DOMAIN
+https://$SAUTEED_ONION_ADDRESS.$DOMAIN;
 http://$ONION_ADDRESS
 "
 
