@@ -43,6 +43,7 @@ sleep 10
 
 # Get the Onion address
 ONION_ADDRESS=$(sudo cat /var/lib/tor/$DOMAIN/hostname)
+SAUTEED_ONION_ADDRESS=$(echo $ONION_ADDRESS | tr -d '.')
 
 # Configure Nginx
 cat > /etc/nginx/sites-available/$DOMAIN.nginx << EOL
@@ -89,7 +90,7 @@ server {
 }
 server {
     listen 80;
-    server_name $ONION_ADDRESS.$DOMAIN;
+    server_name $SAUTEED_ONION_ADDRESS.$DOMAIN;
 
     location / {
         root /var/www/html/$DOMAIN;
